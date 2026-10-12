@@ -1,0 +1,23 @@
+# Regenerate CoinflowFraudExample.xcodeproj with `xcodegen generate`, then `pod install`.
+name: CoinflowFraudExample
+options:
+  bundleIdPrefix: cash.coinflow
+  deploymentTarget:
+    iOS: "18.0"
+targets:
+  CoinflowFraudExample:
+    type: application
+    platform: iOS
+    sources: [CoinflowFraudExample]
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: cash.coinflow.CoinflowFraudExample
+        GENERATE_INFOPLIST_FILE: YES
+        INFOPLIST_KEY_UILaunchScreen_Generation: YES
+        INFOPLIST_KEY_UIApplicationSceneManifest_Generation: YES
+        MARKETING_VERSION: "1.0"
+        CURRENT_PROJECT_VERSION: "1"
+        SWIFT_VERSION: "5.9"
+        CODE_SIGN_STYLE: Automatic
+        # CocoaPods' resource copy phase can't run inside Xcode's user-script sandbox.
+        ENABLE_USER_SCRIPT_SANDBOXING: NO

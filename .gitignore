@@ -1,0 +1,6 @@
+.build/
+.swiftpm/
+*.xcodeproj
+Package.resolved
+DerivedData/
+!Example/CoinflowFraudExample.xcodeproj
