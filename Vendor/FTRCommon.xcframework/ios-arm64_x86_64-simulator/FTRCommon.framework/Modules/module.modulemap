@@ -1,0 +1,11 @@
+framework module FTRCommon {
+  umbrella header "FTRCommon.h"
+  export *
+
+  module * { export * }
+}
+
+module FTRCommon.Swift {
+  header "FTRCommon-Swift.h"
+  requires objc
+}

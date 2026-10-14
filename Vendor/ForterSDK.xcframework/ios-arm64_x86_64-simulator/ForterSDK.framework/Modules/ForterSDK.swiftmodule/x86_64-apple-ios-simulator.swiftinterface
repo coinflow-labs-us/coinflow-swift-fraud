@@ -1,0 +1,187 @@
+// swift-interface-format-version: 1.0
+// swift-compiler-version: Apple Swift version 6.0.2 effective-5.10 (swiftlang-6.0.2.1.2 clang-1600.0.26.4)
+// swift-module-flags: -target x86_64-apple-ios13.0-simulator -enable-objc-interop -enable-library-evolution -swift-version 5 -enforce-exclusivity=checked -O -enable-bare-slash-regex -module-name ForterSDK
+// swift-module-flags-ignorable: -no-verify-emitted-module-interface
+import FTRAuth
+import FTRCommon
+@_exported import ForterSDK
+import Foundation
+import ObjectiveC
+import Swift
+import UIKit
+import _Concurrency
+import _StringProcessing
+import _SwiftConcurrencyShims
+@objc @_hasMissingDesignatedInitializers @objcMembers public class FTRSDKConfigurationProperties : ObjectiveC.NSObject, FTRSDKConfigurationProtocol {
+  @objc public var siteId: Swift.String? {
+    @objc get
+    @objc set
+  }
+  @objc public var currentAccountId: Swift.String? {
+    @objc get
+    @objc set
+  }
+  @objc public var deviceUid: Swift.String? {
+    @objc get
+    @objc set
+  }
+  @objc public var isJailbroken: Swift.Bool {
+    @objc get
+    @objc set
+  }
+  @objc public var isFirstRun: Swift.Bool {
+    @objc get
+    @objc set
+  }
+  @objc public var referralUrl: Swift.String? {
+    @objc get
+    @objc set
+  }
+  @objc public var defaultUserAgent: Swift.String? {
+    @objc get
+    @objc set
+  }
+  @objc public var fetchRemoteConfiguration: Swift.Bool {
+    @objc get
+    @objc set
+  }
+  @objc public var bufferMaxEvents: Swift.UInt {
+    @objc get
+    @objc set
+  }
+  @objc public var bufferMaxEventSizeBytes: Swift.UInt {
+    @objc get
+    @objc set
+  }
+  @objc public var eventMaxAgeSeconds: Swift.UInt {
+    @objc get
+    @objc set
+  }
+  @objc public var networkSubmitIntervalSeconds: Swift.UInt {
+    @objc get
+    @objc set
+  }
+  @objc public var baseApiUrl: Swift.String {
+    @objc get
+    @objc set
+  }
+  @objc public var errorReportingApiUrl: Swift.String {
+    @objc get
+    @objc set
+  }
+  @objc public var networkMaxRetries: Swift.UInt {
+    @objc get
+    @objc set
+  }
+  @objc public var networkInitialSocketTimeout: Swift.UInt {
+    @objc get
+    @objc set
+  }
+  @objc public var networkBackoffMultiplier: Swift.UInt {
+    @objc get
+    @objc set
+  }
+  @objc public var eventCacheExpirySeconds: Swift.UInt {
+    @objc get
+    @objc set
+  }
+  @objc public var eventCachingEnabled: Swift.Bool {
+    @objc get
+    @objc set
+  }
+  @objc public var networkExplicitBufferSubmission: Swift.Bool {
+    @objc get
+    @objc set
+  }
+  @objc public var logLevel: Swift.Int {
+    @objc get
+    @objc set
+  }
+  @objc public var forceGETRequest: Swift.Bool {
+    @objc get
+    @objc set
+  }
+  @objc public var shouldCompress: Swift.Bool {
+    @objc get
+    @objc set
+  }
+  @objc public var eventCompressionMode: Swift.String {
+    @objc get
+    @objc set
+  }
+  @objc public var shouldSendNetworkErrors: Swift.Bool {
+    @objc get
+    @objc set
+  }
+  @objc public func merged(with other: any FTRSDKConfigurationProtocol) -> any FTRSDKConfigurationProtocol
+  @objc override dynamic public func value(forKey key: Swift.String) -> Any?
+  @objc public func allKeys() -> Swift.Set<Swift.String>
+  @objc deinit
+}
+@objc public protocol FTRSDKConfigurationProtocol {
+  @objc var siteId: Swift.String? { get set }
+  @objc var currentAccountId: Swift.String? { get set }
+  @objc var deviceUid: Swift.String? { get set }
+  @objc var isJailbroken: Swift.Bool { get set }
+  @objc var isFirstRun: Swift.Bool { get set }
+  @objc var referralUrl: Swift.String? { get set }
+  @objc var defaultUserAgent: Swift.String? { get set }
+  @objc var fetchRemoteConfiguration: Swift.Bool { get set }
+  @objc var bufferMaxEvents: Swift.UInt { get set }
+  @objc var bufferMaxEventSizeBytes: Swift.UInt { get set }
+  @objc var eventMaxAgeSeconds: Swift.UInt { get set }
+  @objc var networkSubmitIntervalSeconds: Swift.UInt { get set }
+  @objc var baseApiUrl: Swift.String { get set }
+  @objc var errorReportingApiUrl: Swift.String { get set }
+  @objc var networkMaxRetries: Swift.UInt { get set }
+  @objc var networkInitialSocketTimeout: Swift.UInt { get set }
+  @objc var networkBackoffMultiplier: Swift.UInt { get set }
+  @objc var eventCacheExpirySeconds: Swift.UInt { get set }
+  @objc var eventCachingEnabled: Swift.Bool { get set }
+  @objc var networkExplicitBufferSubmission: Swift.Bool { get set }
+  @objc var logLevel: Swift.Int { get set }
+  @objc var forceGETRequest: Swift.Bool { get set }
+  @objc var shouldCompress: Swift.Bool { get set }
+  @objc var eventCompressionMode: Swift.String { get set }
+  @objc var shouldSendNetworkErrors: Swift.Bool { get set }
+  @objc func value(forKey key: Swift.String) -> Any?
+  @objc func allKeys() -> Swift.Set<Swift.String>
+  @objc func merged(with other: any FTRSDKConfigurationProtocol) -> any FTRSDKConfigurationProtocol
+}
+@objc @_inheritsConvenienceInitializers @objcMembers public class FTRSDKConfiguration : ObjectiveC.NSObject, Foundation.NSCopying, FTRSDKConfigurationProtocol {
+  @objc public var siteId: Swift.String?
+  @objc public var currentAccountId: Swift.String?
+  @objc public var deviceUid: Swift.String?
+  @objc public var isJailbroken: Swift.Bool
+  @objc public var isFirstRun: Swift.Bool
+  @objc public var referralUrl: Swift.String?
+  @objc public var defaultUserAgent: Swift.String?
+  @objc public var fetchRemoteConfiguration: Swift.Bool
+  @objc public var bufferMaxEvents: Swift.UInt
+  @objc public var bufferMaxEventSizeBytes: Swift.UInt
+  @objc public var eventMaxAgeSeconds: Swift.UInt
+  @objc public var networkSubmitIntervalSeconds: Swift.UInt
+  @objc public var baseApiUrl: Swift.String
+  @objc public var errorReportingApiUrl: Swift.String
+  @objc public var networkMaxRetries: Swift.UInt
+  @objc public var networkInitialSocketTimeout: Swift.UInt
+  @objc public var networkBackoffMultiplier: Swift.UInt
+  @objc public var eventCacheExpirySeconds: Swift.UInt
+  @objc public var eventCachingEnabled: Swift.Bool
+  @objc public var networkExplicitBufferSubmission: Swift.Bool
+  @objc public var logLevel: Swift.Int
+  @objc public var forceGETRequest: Swift.Bool
+  @objc public var shouldCompress: Swift.Bool
+  @objc public var eventCompressionMode: Swift.String
+  @objc public var shouldSendNetworkErrors: Swift.Bool
+  @objc public func copy(with zone: ObjectiveC.NSZone? = nil) -> Any
+  @objc public func merged(with other: any FTRSDKConfigurationProtocol) -> any FTRSDKConfigurationProtocol
+  @objc public func allKeys() -> Swift.Set<Swift.String>
+  @objc override dynamic public init()
+  @objc deinit
+}
+@objc @_inheritsConvenienceInitializers @objcMembers public class FTRMobileUIDGenerator : ObjectiveC.NSObject {
+  @objc public static func generate() -> Swift.String
+  @objc override dynamic public init()
+  @objc deinit
+}

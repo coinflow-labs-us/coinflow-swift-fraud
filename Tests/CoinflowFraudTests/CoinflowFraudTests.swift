@@ -212,6 +212,22 @@ final class CoinflowFraudTests: XCTestCase {
         XCTAssertEqual(factory.devicePartnerIds, [partnerId])
     }
 
+    func testANonForcedInitializeWithADifferentConfigKeepsTheFirstOne() async {
+        let partnerId = UUID().uuidString
+        let lookups = LookupStub([.failed, .resolved(partnerId)])
+        let factory = FactoryRecorder()
+        let sdk = makeSdk(lookups: lookups, factory: factory)
+
+        await sdk.initialize(merchantId: merchantId, env: .sandbox)
+        await sdk.initialize(merchantId: UUID().uuidString, env: .prod)
+
+        let calls = await lookups.calls
+        XCTAssertEqual(calls.map(\.0), [merchantId, merchantId])
+        XCTAssertEqual(calls.map(\.1), [.sandbox, .sandbox])
+        XCTAssertEqual(factory.baseEnvs, [.sandbox])
+        XCTAssertEqual(factory.devicePartnerIds, [partnerId])
+    }
+
     func testConcurrentCallersShareOneInFlightBoot() async {
         let lookups = LookupStub([.failed], delayNanoseconds: 200_000_000)
         let factory = FactoryRecorder()
@@ -298,6 +314,26 @@ final class CoinflowFraudTests: XCTestCase {
         await initializing.value
 
         XCTAssertEqual(decoded(headers)?.sessionId, session)
+    }
+
+    func testAChargeDuringTheMerchantLookupDoesNotWaitForIt() async {
+        let session = UUID().uuidString
+        let factory = FactoryRecorder()
+        factory.base = [FakeProvider(slot: .session, value: session)]
+        factory.device = FakeProvider(slot: .device, value: UUID().uuidString)
+        let sdk = makeSdk(
+            lookups: LookupStub([.resolved(UUID().uuidString)], delayNanoseconds: 2_000_000_000),
+            factory: factory
+        )
+
+        let initializing = Task { await sdk.initialize(merchantId: merchantId, env: .sandbox) }
+        await Task.yield()
+        let started = Date()
+        let headers = await sdk.purchaseHeaders()
+
+        XCTAssertLessThan(Date().timeIntervalSince(started), 1)
+        XCTAssertEqual(decoded(headers), DecodedProtectionHeader(deviceId: nil, sessionId: session, purchaseToken: nil))
+        await initializing.value
     }
 
     func testInitializeDoesNotWaitForTheTokenWarmUp() async {

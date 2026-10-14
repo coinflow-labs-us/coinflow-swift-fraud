@@ -29,9 +29,11 @@ Pod::Spec.new do |s|
     device.dependency 'nSure', '~> 1.4.1'
   end
 
-  # Not on CocoaPods trunk: the app's Podfile points this pod at its git source (see README).
+  # Bundled (Vendor/, version 3.2.3) with the vendor's approval, since it isn't on CocoaPods trunk.
   s.subspec 'Purchase' do |purchase|
     purchase.dependency 'CoinflowFraud/Core'
-    purchase.dependency 'ForterSDK', '3.2.3'
+    purchase.vendored_frameworks = 'Vendor/ForterSDK.xcframework', 'Vendor/FTRAuth.xcframework',
+                                   'Vendor/FTRCommon.xcframework'
+    purchase.frameworks = 'CFNetwork', 'SystemConfiguration', 'CoreTelephony', 'UIKit'
   end
 end

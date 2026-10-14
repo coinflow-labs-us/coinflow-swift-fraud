@@ -1,27 +1,24 @@
 PODS:
-  - CoinflowFraud (0.1.0):
-    - CoinflowFraud/Device (= 0.1.0)
-    - CoinflowFraud/Purchase (= 0.1.0)
-    - CoinflowFraud/Session (= 0.1.0)
-  - CoinflowFraud/Core (0.1.0)
-  - CoinflowFraud/Device (0.1.0):
+  - CoinflowFraud (0.2.0):
+    - CoinflowFraud/Device (= 0.2.0)
+    - CoinflowFraud/Purchase (= 0.2.0)
+    - CoinflowFraud/Session (= 0.2.0)
+  - CoinflowFraud/Core (0.2.0)
+  - CoinflowFraud/Device (0.2.0):
     - CoinflowFraud/Core
     - nSure (~> 1.4.1)
-  - CoinflowFraud/Purchase (0.1.0):
+  - CoinflowFraud/Purchase (0.2.0):
     - CoinflowFraud/Core
-    - ForterSDK (= 3.2.3)
-  - CoinflowFraud/Session (0.1.0):
+  - CoinflowFraud/Session (0.2.0):
     - CoinflowFraud/Core
     - VerisoulSDK (~> 0.4.71)
   - Fingerprint-iOS (4.0.0)
-  - ForterSDK (3.2.3)
   - nSure (1.4.1):
     - Fingerprint-iOS (~> 4.0)
   - VerisoulSDK (0.4.71)
 
 DEPENDENCIES:
   - CoinflowFraud (from `..`)
-  - ForterSDK (from `https://bitbucket.org/forter-mobile/forter-ios-sdk.git`, commit `a58b18b1181580c19c00000c27638efd059d36eb`)
 
 SPEC REPOS:
   trunk:
@@ -32,22 +29,13 @@ SPEC REPOS:
 EXTERNAL SOURCES:
   CoinflowFraud:
     :path: ".."
-  ForterSDK:
-    :commit: a58b18b1181580c19c00000c27638efd059d36eb
-    :git: https://bitbucket.org/forter-mobile/forter-ios-sdk.git
-
-CHECKOUT OPTIONS:
-  ForterSDK:
-    :commit: a58b18b1181580c19c00000c27638efd059d36eb
-    :git: https://bitbucket.org/forter-mobile/forter-ios-sdk.git
 
 SPEC CHECKSUMS:
-  CoinflowFraud: bc583bc1b9bdd8f3800302821b890b714cca8fd6
+  CoinflowFraud: 1bf4c0d6bb3942b056dfe4dd0be75a6cb3fe1054
   Fingerprint-iOS: c732b9dede1ff37a256fbc7efd3f22b7d258f023
-  ForterSDK: bd6fbaed66b2f047a69e3be2084dd44decb21532
   nSure: a9ac40c3932d5683d7a75dd0a08065ecb7a6e1e3
   VerisoulSDK: 61bcfbb870e9fe8600e14a124365a023abc41def
 
-PODFILE CHECKSUM: b9d0fbe61156554763e20c4e80382d9aa847b856
+PODFILE CHECKSUM: 4d4f42abc7f59a0f95c6a7af1ce24a6a453d52a7
 
 COCOAPODS: 1.17.0

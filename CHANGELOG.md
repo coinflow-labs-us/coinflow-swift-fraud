@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.2.0
+
+- The purchase signal SDK is bundled in the `CoinflowFraud` pod, so apps add only `pod 'CoinflowFraud'`.
+- A non-forced `initialize` with a different merchant or env is ignored and logged; pass `force: true`
+  to switch.
+- `purchaseHeaders()` waits only for the providers to be built, not for the merchant lookup.
+
 ## 0.1.0
 
 - Initial release of the Coinflow fraud-protection SDK for iOS.

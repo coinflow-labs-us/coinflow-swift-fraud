@@ -1,0 +1,225 @@
+// swift-interface-format-version: 1.0
+// swift-compiler-version: Apple Swift version 6.0.2 effective-5.10 (swiftlang-6.0.2.1.2 clang-1600.0.26.4)
+// swift-module-flags: -target x86_64-apple-ios13.0-simulator -enable-objc-interop -enable-library-evolution -swift-version 5 -enforce-exclusivity=checked -O -enable-bare-slash-regex -module-name FTRCommon
+// swift-module-flags-ignorable: -no-verify-emitted-module-interface
+import Combine
+@_exported import FTRCommon
+import Foundation
+import Network
+import Photos
+import Swift
+import UIKit
+import _Concurrency
+import _StringProcessing
+import _SwiftConcurrencyShims
+import os.log
+import os
+public protocol BuildConfigProtocol {
+  var isDebug: Swift.Bool { get }
+}
+public let buildConfig: any FTRCommon.BuildConfigProtocol
+public enum ASN1Symbol : Swift.UInt8 {
+  case boolean
+  case integer
+  case bitString
+  case octetString
+  case utf8String
+  case printableString
+  case ia5String
+  case sequence
+  case set
+  case attributes
+  case dns
+  public init?(rawValue: Swift.UInt8)
+  public typealias RawValue = Swift.UInt8
+  public var rawValue: Swift.UInt8 {
+    get
+  }
+}
+@_hasMissingDesignatedInitializers public class ASN1Formatter {
+  public class Builder {
+    public init()
+    public func appendByte(_ data: Swift.UInt8) -> Self
+    public func appendBytes(_ data: [Swift.UInt8]) -> Self
+    public func enclose(by: FTRCommon.ASN1Symbol) -> Self
+    public func appendBitString(_ data: Foundation.Data) -> Self
+    public func appendDERLength(_ length: Swift.Int) -> Self
+    public func build() -> [Swift.UInt8]
+    @objc deinit
+  }
+  @objc deinit
+}
+public protocol ASN1Extension {
+  var value: [Swift.UInt8] { get }
+}
+public class AlternativeName : FTRCommon.ASN1Extension {
+  public init(altName: Swift.String)
+  public var value: [Swift.UInt8] {
+    get
+  }
+  @objc deinit
+}
+public class KeyUsage : FTRCommon.ASN1Extension {
+  public init()
+  public var value: [Swift.UInt8] {
+    get
+  }
+  @objc deinit
+}
+public class ExtKeyUsage : FTRCommon.ASN1Extension {
+  public init()
+  public var value: [Swift.UInt8] {
+    get
+  }
+  @objc deinit
+}
+public protocol FTRListenerProtocol : ObjectiveC.NSObject {
+  func invoke(_ value: Any)
+}
+public protocol FTRListenableProtocol : ObjectiveC.NSObject {
+  associatedtype Listener : FTRCommon.FTRListenerProtocol
+  func registerListener(_ listener: Self.Listener)
+  func unregisterListener(_ listener: Self.Listener)
+  func clear()
+}
+public typealias FTRCallback = (Any) -> Swift.Void
+@objc public class FTRListener : ObjectiveC.NSObject, FTRCommon.FTRListenerProtocol {
+  @objc public init(_ onDataReceived: @escaping FTRCommon.FTRCallback)
+  @objc public func invoke(_ value: Any)
+  @objc deinit
+}
+public class FTRListenable<T> : ObjectiveC.NSObject, FTRCommon.FTRListenableProtocol {
+  public typealias Listener = FTRCommon.FTRListener
+  public var value: T? {
+    get
+    set
+  }
+  public init(value: T?)
+  public func registerListener(_ listener: FTRCommon.FTRListenable<T>.Listener)
+  public func unregisterListener(_ listener: FTRCommon.FTRListenable<T>.Listener)
+  public func clear()
+  @objc deinit
+}
+extension Foundation.OperationQueue {
+  public static func with(dispatchQueue: Dispatch.DispatchQueue) -> Foundation.OperationQueue
+}
+public func synchronized(_ lock: Swift.AnyObject, block: () -> Swift.Void)
+public func assertNotMainThread()
+@objc public enum Permission : Swift.Int {
+  case photoLibrary = 0
+  public init?(rawValue: Swift.Int)
+  public typealias RawValue = Swift.Int
+  public var rawValue: Swift.Int {
+    get
+  }
+}
+public protocol UserDefaultsProtocol {
+  func remove(key: Swift.String)
+  func set(key: Swift.String, value: Any?)
+  func integer(key: Swift.String) -> Swift.Int
+  func bool(key: Swift.String) -> Swift.Bool
+  func string(key: Swift.String) -> Swift.String?
+  func object<T>(key: Swift.String) -> T?
+  func any(key: Swift.String) -> Any?
+}
+public protocol FTRLoggerProtocol {
+  static var shared: any FTRCommon.FTRLoggerProtocol { get }
+  func setLogLevel(_ logLevel: Swift.Int)
+  func setDevLogsEnabled(_ enabled: Swift.Bool)
+  func setGlobalErrorHandler(_ handler: @escaping FTRCommon.ErrorBlock)
+  func getLogLevel() -> Swift.Int
+  func error(_ log: Swift.String, sendErrorEvent shouldSendError: Swift.Bool)
+  func error(_ log: Swift.String)
+  func warning(_ log: Swift.String)
+  func debug(_ log: Swift.String)
+  func info(_ log: Swift.String)
+  func verbose(_ log: Swift.String)
+  func dev(_ log: Swift.String)
+}
+extension FTRCommon.FTRLogger {
+  public static func shared() -> any FTRCommon.FTRLoggerProtocol
+}
+public protocol PathObservable {
+  func addPathObserver<T>(id: Swift.String, attribute keyPath: Swift.KeyPath<Network.NWPath, T>, distinct: Swift.Bool, handler: @escaping (Network.NWPath) -> Swift.Void) async where T : Swift.Equatable
+  func removePathObserver(id: Swift.String) async
+  func stop()
+}
+extension FTRCommon.PathObservable {
+  public func addPathObserver<T>(id: Swift.String, attribute keyPath: Swift.KeyPath<Network.NWPath, T>, handler: @escaping (Network.NWPath) -> Swift.Void) async where T : Swift.Equatable
+}
+@objc @_inheritsConvenienceInitializers @objcMembers final public class FTRConnectivityDetector : ObjectiveC.NSObject, FTRCommon.PathObservable {
+  @objc override dynamic public init()
+  @objc deinit
+  @objc final public func hasConnectivity() -> Swift.Bool
+  @objc final public func waitForConnectivity(timeoutMilliseconds: Swift.Int64) async -> Swift.Bool
+  @objc final public func waitForConnectivity() async -> Swift.Bool
+  @objc final public func waitForConnectivity(timeoutSeconds: Foundation.TimeInterval) async -> Swift.Bool
+  final public func addPathObserver<T>(id: Swift.String, attribute keyPath: Swift.KeyPath<Network.NWPath, T>, distinct: Swift.Bool = false, handler: @escaping (Network.NWPath) -> Swift.Void) async where T : Swift.Equatable
+  final public func addPathObserver(id: Swift.String, handler: @escaping (Network.NWPath) -> Swift.Void) async
+  @objc final public func removePathObserver(id: Swift.String) async
+  @objc final public func stop()
+}
+public protocol FTRForegroundMonitorProtocol {
+  var state: FTRCommon.ForegroundState { get }
+  var listenState: FTRCommon.FTRListenable<FTRCommon.ForegroundState> { get }
+}
+@objc public enum ForegroundState : Swift.Int {
+  case unknown = 0
+  case foreground
+  case background
+  public init?(rawValue: Swift.Int)
+  public typealias RawValue = Swift.Int
+  public var rawValue: Swift.Int {
+    get
+  }
+}
+public protocol Dependable : Swift.Sendable {
+  var identifier: Swift.String { get }
+  func asTask(options: [Swift.String : Any]) -> _Concurrency.Task<Swift.Bool, any Swift.Error>
+  func isSatisfied(options: [Swift.String : Any]) async throws -> Swift.Bool
+}
+@objc @objcMembers public class FTRSubject : ObjectiveC.NSObject {
+  @objc final public let userId: Swift.String?
+  @objc final public let desc: Swift.String?
+  @objc final public let commonName: Swift.String?
+  @objc final public let countryName: Swift.String?
+  @objc final public let stateOrProvinceName: Swift.String?
+  @objc final public let localityName: Swift.String?
+  @objc final public let organizationName: Swift.String?
+  @objc final public let organizationUnitName: Swift.String?
+  @objc final public let emailAddress: Swift.String?
+  @objc public init(userId: Swift.String?, desc: Swift.String? = nil, commonName: Swift.String? = nil, countryName: Swift.String? = nil, stateOrProvinceName: Swift.String? = nil, localityName: Swift.String? = nil, organizationName: Swift.String? = nil, organizationUnitName: Swift.String? = nil, emailAddress: Swift.String? = nil)
+  @objc public func build() -> [Swift.UInt8]
+  @objc deinit
+}
+public struct OIDConstants {
+  public static let description: [Swift.UInt8]
+  public static let commonName: [Swift.UInt8]
+  public static let countryName: [Swift.UInt8]
+  public static let stateOrProvince: [Swift.UInt8]
+  public static let locality: [Swift.UInt8]
+  public static let organizationName: [Swift.UInt8]
+  public static let organizationUnitName: [Swift.UInt8]
+  public static let emailAddress: [Swift.UInt8]
+  public static let sequenceObjectSha256withECEncryption: [Swift.UInt8]
+  public static let userId: [Swift.UInt8]
+  public static let subjectAltName: [Swift.UInt8]
+  public static let keyUsage: [Swift.UInt8]
+  public static let extendedKeyUsage: [Swift.UInt8]
+  public static let clientAuth: [Swift.UInt8]
+  public static let extensionRequest: [Swift.UInt8]
+  public static let ecPublicKey: [Swift.UInt8]
+  public static let ecEncryptionNull: [Swift.UInt8]
+}
+public protocol XMLToJSONCompleteDelegate : AnyObject {
+  func onComplete(outputJSON: [Swift.String : Any]?, error: (any Swift.Error)?)
+}
+extension FTRCommon.ASN1Symbol : Swift.Equatable {}
+extension FTRCommon.ASN1Symbol : Swift.Hashable {}
+extension FTRCommon.ASN1Symbol : Swift.RawRepresentable {}
+extension FTRCommon.Permission : Swift.Equatable {}
+extension FTRCommon.Permission : Swift.Hashable {}
+extension FTRCommon.Permission : Swift.RawRepresentable {}
+extension FTRCommon.ForegroundState : Swift.Equatable {}
+extension FTRCommon.ForegroundState : Swift.Hashable {}
+extension FTRCommon.ForegroundState : Swift.RawRepresentable {}

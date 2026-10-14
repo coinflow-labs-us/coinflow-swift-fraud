@@ -4,10 +4,6 @@ target 'CoinflowFraudExample' do
   use_frameworks!
 
   pod 'CoinflowFraud', :path => '..'
-  # Not on CocoaPods trunk. Pinned to the commit behind tag 3.2.3, since a moved tag would silently
-  # swap the binary (Podfile.lock checksums the podspec, not the framework).
-  pod 'ForterSDK', :git => 'https://bitbucket.org/forter-mobile/forter-ios-sdk.git',
-                   :commit => 'a58b18b1181580c19c00000c27638efd059d36eb' # tag 3.2.3
 end
 
 # Some signal SDK pods declare iOS 14.0, below current Xcode's minimum of 15.0.

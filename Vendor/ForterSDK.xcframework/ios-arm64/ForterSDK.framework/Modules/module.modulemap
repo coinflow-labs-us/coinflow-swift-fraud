@@ -1,0 +1,11 @@
+framework module ForterSDK {
+  umbrella header "ForterSDK.h"
+  export *
+
+  module * { export * }
+}
+
+module ForterSDK.Swift {
+  header "ForterSDK-Swift.h"
+  requires objc
+}

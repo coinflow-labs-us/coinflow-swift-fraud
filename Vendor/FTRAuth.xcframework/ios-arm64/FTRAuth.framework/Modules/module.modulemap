@@ -1,0 +1,11 @@
+framework module FTRAuth {
+  umbrella header "FTRAuth.h"
+  export *
+
+  module * { export * }
+}
+
+module FTRAuth.Swift {
+  header "FTRAuth-Swift.h"
+  requires objc
+}

@@ -1,4 +1,5 @@
 import Foundation
+import os
 
 public enum CoinflowFraudEnv: String, Sendable {
     case prod
@@ -27,6 +28,8 @@ public protocol FraudProvider: Sendable {
 public final class CoinflowFraud {
     public static let shared = CoinflowFraud()
 
+    private static let log = Logger(subsystem: "cash.coinflow.fraud", category: "CoinflowFraud")
+
     // Bounds every provider so a slow vendor SDK can't hold up a charge.
     private let tokenTimeoutNanoseconds: UInt64
 
@@ -35,8 +38,10 @@ public final class CoinflowFraud {
 
     private var builtInProviders: [FraudProvider] = []
     private var registeredProviders: [FraudProvider] = []
-    // The boot initialize started; purchaseHeaders waits for it so the providers exist.
-    private var initTask: Task<Void, Never>?
+    // Signalled once the boot initialize started has built the base providers. purchaseHeaders waits for
+    // that, not the whole boot: only the device provider needs the merchant lookup, and the next charge
+    // picks up its token.
+    private var providersReady: ReadySignal?
     // The latest boot, including a background retry that nothing waits on.
     private var bootTask: Task<Void, Never>?
     // The last merchant/env passed to initialize, so purchaseHeaders can retry a failed lookup.
@@ -82,7 +87,12 @@ public final class CoinflowFraud {
     /// fail-open. Pass `force: true` to start over with a different merchant or env.
     public func initialize(merchantId: String, env: CoinflowFraudEnv, force: Bool = false) async {
         if force { reset() }
-        config = (merchantId, env)
+        // A non-forced call with a different config is a no-op, so a retry can't mix configs.
+        let bootConfig = config ?? (merchantId, env)
+        config = bootConfig
+        if bootConfig.merchantId != merchantId || bootConfig.env != env {
+            Self.log.warning("initialize ignored a different merchant/env; pass force: true to switch")
+        }
         if initialized { return }
         // Share an in-flight boot's outcome rather than racing it; a later call retries if it failed.
         if booting, let bootTask {
@@ -90,15 +100,17 @@ public final class CoinflowFraud {
             return
         }
 
-        let task = startBoot(merchantId: merchantId, env: env)
-        initTask = task
+        let ready = ReadySignal()
+        providersReady = ready
+        let task = startBoot(merchantId: bootConfig.merchantId, env: bootConfig.env, providersReady: ready)
         await task.value
     }
 
     /// Returns `["x-device-id": <payload>]`, or `[:]` when no provider produced a token. Waits for an
-    /// in-flight `initialize` to register the providers, so an early charge still carries the header.
+    /// in-flight `initialize` to build its providers. A charge made before the merchant config resolves
+    /// may be missing the device signal.
     public func purchaseHeaders() async -> [String: String] {
-        await initTask?.value
+        await providersReady?.wait()
         retryFailedLookupInBackground()
 
         let tokens = await collectTokens()
@@ -112,7 +124,7 @@ public final class CoinflowFraud {
 
     func reset() {
         generation += 1
-        initTask = nil
+        providersReady = nil
         bootTask = nil
         config = nil
         booting = false
@@ -122,13 +134,19 @@ public final class CoinflowFraud {
     }
 
     @discardableResult
-    private func startBoot(merchantId: String, env: CoinflowFraudEnv) -> Task<Void, Never> {
+    private func startBoot(
+        merchantId: String,
+        env: CoinflowFraudEnv,
+        providersReady: ReadySignal? = nil
+    ) -> Task<Void, Never> {
         booting = true
         // Captured now, not when the task starts: a force reset can land before it first runs.
         let bootGeneration = generation
         let task = Task {
             await bootWillStart?()
-            await boot(merchantId: merchantId, env: env, generation: bootGeneration)
+            await boot(merchantId: merchantId, env: env, generation: bootGeneration, providersReady: providersReady)
+            // Covers a boot that ends early (superseded) so a charge never waits forever.
+            providersReady?.signal()
         }
         bootTask = task
         return task
@@ -141,12 +159,18 @@ public final class CoinflowFraud {
         startBoot(merchantId: config.merchantId, env: config.env)
     }
 
-    private func boot(merchantId: String, env: CoinflowFraudEnv, generation bootGeneration: Int) async {
+    private func boot(
+        merchantId: String,
+        env: CoinflowFraudEnv,
+        generation bootGeneration: Int,
+        providersReady: ReadySignal?
+    ) async {
         guard bootGeneration == generation else { return }
         if !baseProvidersBuilt {
             builtInProviders = providerFactory.base(env)
             baseProvidersBuilt = true
         }
+        providersReady?.signal()
 
         let lookup = await fetchPartnerId(merchantId, env)
         guard bootGeneration == generation else { return }
@@ -196,6 +220,25 @@ public final class CoinflowFraud {
                 resumer.resume(nil)
             }
         }
+    }
+}
+
+// A one-shot latch: wait() returns once signal() has been called, immediately if it already was.
+@MainActor
+private final class ReadySignal {
+    private var isSignalled = false
+    private var waiters: [CheckedContinuation<Void, Never>] = []
+
+    func wait() async {
+        if isSignalled { return }
+        await withCheckedContinuation { waiters.append($0) }
+    }
+
+    func signal() {
+        guard !isSignalled else { return }
+        isSignalled = true
+        waiters.forEach { $0.resume() }
+        waiters = []
     }
 }
 

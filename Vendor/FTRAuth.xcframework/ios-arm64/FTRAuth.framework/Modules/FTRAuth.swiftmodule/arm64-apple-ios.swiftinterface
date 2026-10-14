@@ -1,0 +1,71 @@
+// swift-interface-format-version: 1.0
+// swift-compiler-version: Apple Swift version 6.0.2 effective-5.10 (swiftlang-6.0.2.1.2 clang-1600.0.26.4)
+// swift-module-flags: -target arm64-apple-ios13.0 -enable-objc-interop -enable-library-evolution -swift-version 5 -enforce-exclusivity=checked -O -enable-bare-slash-regex -module-name FTRAuth
+// swift-module-flags-ignorable: -no-verify-emitted-module-interface
+import CommonCrypto
+@_exported import FTRAuth
+import FTRCommon
+import Foundation
+import Security
+import Swift
+import _Concurrency
+import _StringProcessing
+import _SwiftConcurrencyShims
+public protocol FTRKeyPairProtocol {
+  var publicKey: Foundation.Data? { get }
+  func sign(data: Foundation.Data) throws -> Foundation.Data
+}
+@objc @objcMembers final public class FTRKeyPair : ObjectiveC.NSObject, FTRAuth.FTRKeyPairProtocol {
+  @objc final public let secKey: Security.SecKey
+  @objc public init(secKey: Security.SecKey)
+  @objc final public var publicKey: Foundation.Data? {
+    @objc get
+  }
+  @objc final public func sign(data: Foundation.Data) throws -> Foundation.Data
+  @objc deinit
+}
+@objc public protocol FTRX509CertificateProtocol {
+  @objc var data: Foundation.Data { get }
+  @objc func encoded() -> Swift.String
+  @objc func pem() -> Swift.String
+  @objc func isValid() -> Swift.Bool
+}
+@objc @objcMembers final public class FTRX509Certificate : ObjectiveC.NSObject, FTRAuth.FTRX509CertificateProtocol {
+  @objc final public let value: Security.SecCertificate
+  @objc final public let data: Foundation.Data
+  @objc public init(certificate: Security.SecCertificate)
+  @objc final public func encoded() -> Swift.String
+  @objc final public func pem() -> Swift.String
+  @objc dynamic final public func isValid() -> Swift.Bool
+  @objc deinit
+}
+@objc @objcMembers final public class FTRAuthenticationParams : ObjectiveC.NSObject {
+  @objc public init(userId: Swift.String, siteId: Swift.String, sdkVersion: Swift.String)
+  @objc deinit
+}
+public protocol FTRKeychainProtocol {
+  func upsertClientCertificate(x509certificate: any FTRAuth.FTRX509CertificateProtocol) -> Swift.Result<any FTRAuth.FTRX509CertificateProtocol, FTRAuth.FTRKeychainError>
+  func getKeyPair() throws -> any FTRAuth.FTRKeyPairProtocol
+  func getClientCertificate() -> (any FTRAuth.FTRX509CertificateProtocol)?
+  func getCertNonce() -> Swift.String?
+  func cleanup() -> Swift.Result<Swift.String, FTRAuth.FTRKeychainError>
+}
+public enum FTRKeychainError : Foundation.LocalizedError {
+  case upsertCertificateError(reason: Swift.String)
+  case createSecKeyError(reason: Swift.String)
+  case cleanupError(reason: Swift.String)
+  public var errorDescription: Swift.String {
+    get
+  }
+}
+@objc @_hasMissingDesignatedInitializers public class CertificateSigningRequest : ObjectiveC.NSObject {
+  @objc deinit
+}
+public protocol FTRMobileAuthenticatorProtocol {
+  var isAttestationEnabled: Swift.Bool { get }
+  var authToken: Swift.String { get }
+  var shouldSendAuthErrors: Swift.Bool { get }
+  func authenticate(params: FTRAuth.FTRAuthenticationParams) async -> Swift.Result<any FTRAuth.FTRX509CertificateProtocol, any Swift.Error>
+  func registerAuthTokenUpdates(_ listener: FTRCommon.FTRListener)
+  func unregisterAuthTokenUpdates(_ listener: FTRCommon.FTRListener)
+}
