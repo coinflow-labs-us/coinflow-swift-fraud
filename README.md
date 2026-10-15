@@ -41,10 +41,16 @@ time-bounded, so a slow source can't hold up a charge.
 
 ## Example app
 
-`Example/` is a demo app that runs the SDK against a real merchant and shows the decoded header.
+`Example/` is a minimal app that initializes the SDK at launch and attaches the `x-device-id` header to
+a request, matching the React Native example.
 
 ```bash
 cd Example
 pod install
 open CoinflowFraudExample.xcworkspace
 ```
+
+Configure it with environment variables in the scheme: `COINFLOW_MERCHANT_ID` and `COINFLOW_ENV`
+(defaults `coinflow` and `sandbox`). Set `COINFLOW_CHARGE_URL` to show **Send request**, which POSTs
+there with the headers. Set `COINFLOW_FRAUD_AUTORUN=1` to collect 5s after launch and print
+`COINFLOW_FRAUD_RESULT`, for scripted runs.

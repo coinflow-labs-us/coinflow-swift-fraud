@@ -1,132 +1,112 @@
 import SwiftUI
 import CoinflowFraud
 
-// Runs the SDK against a real merchant and decodes the header to show which signals surfaced.
-// Each "Get Device Id" re-initializes with the current inputs. Launch with COINFLOW_FRAUD_AUTORUN=1
-// to collect once on appear and print the decoded payload, for scripted runs.
 struct FraudDemoView: View {
-    @State private var merchantId = ProcessInfo.processInfo.environment["COINFLOW_MERCHANT_ID"] ?? "coinflow"
-    @State private var env: CoinflowFraudEnv =
-        CoinflowFraudEnv(rawValue: ProcessInfo.processInfo.environment["COINFLOW_ENV"] ?? "sandbox") ?? .sandbox
+    // Gives initialize, started at launch, time to start the signal SDKs.
+    private static let autorunDelay: Duration = .seconds(5)
 
-    @State private var header: String?
-    @State private var payload: DecodedHeader?
+    @State private var headers: [String: String]?
+    @State private var response: String?
     @State private var busy = false
-    @State private var ran = false
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("Coinflow Fraud SDK").font(.title2).bold()
+        ScrollView {
+            VStack(alignment: .leading, spacing: 12) {
+                Text("Coinflow Fraud Example").font(.title2).bold()
+                Text("merchant \(ExampleConfig.merchantId) · env \(ExampleConfig.env.rawValue)")
+                    .font(.footnote)
+                    .foregroundColor(.secondary)
 
-            VStack(alignment: .leading, spacing: 4) {
-                Text("Merchant ID").font(.caption).foregroundColor(.secondary)
-                TextField("merchant id", text: $merchantId)
-                    .textFieldStyle(.roundedBorder)
-                    .autocorrectionDisabled()
-                    .textInputAutocapitalization(.never)
-            }
-
-            Picker("Env", selection: $env) {
-                Text("sandbox").tag(CoinflowFraudEnv.sandbox)
-                Text("prod").tag(CoinflowFraudEnv.prod)
-            }
-            .pickerStyle(.segmented)
-
-            Button(busy ? "Collecting…" : "Get Device Id") {
-                Task { await run() }
-            }
-            .disabled(busy)
-            .buttonStyle(.borderedProminent)
-
-            if ran {
-                Text(ProtectionHeader.name).font(.caption).bold()
-                Text(header ?? "(none — no signal was available)")
-                    .font(.system(.footnote, design: .monospaced))
-                    .textSelection(.enabled)
-
-                HStack {
-                    pill("Device", payload?.deviceId != nil)
-                    pill("Session", payload?.sessionId != nil)
-                    pill("Purchase", payload?.purchaseToken != nil)
+                Button {
+                    Task { await buildHeaders() }
+                } label: {
+                    Text(busy ? "Collecting…" : "Get x-device-id header").frame(maxWidth: .infinity)
                 }
+                .buttonStyle(.borderedProminent)
+                .controlSize(.large)
+                .disabled(busy)
 
-                if let payload {
-                    Text("Decoded payload").font(.caption).bold()
-                    VStack(alignment: .leading, spacing: 4) {
-                        row("deviceId", payload.deviceId)
-                        row("sessionId", payload.sessionId)
-                        row("purchaseToken", payload.purchaseToken)
+                if let chargeUrl = ExampleConfig.chargeUrl {
+                    Button {
+                        Task { await send(to: chargeUrl) }
+                    } label: {
+                        Text("Send request").frame(maxWidth: .infinity)
                     }
-                    .padding(10)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(Color(.secondarySystemBackground))
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                    .buttonStyle(.bordered)
+                    .controlSize(.large)
+                    .disabled(busy)
+                }
+
+                if let headers {
+                    section(ProtectionHeader.name, headers[ProtectionHeader.name] ?? "(empty — no signal was available)")
+                    section("Request headers", Self.json(headers))
+                }
+
+                if let response {
+                    section("Response", response)
                 }
             }
-            Spacer()
+            .padding()
         }
-        .padding()
         .task {
-            guard ProcessInfo.processInfo.environment["COINFLOW_FRAUD_AUTORUN"] == "1" else { return }
-            await run()
-            print("COINFLOW_FRAUD_RESULT", payload.map { "\($0)" } ?? "none")
+            guard ExampleConfig.autorun else { return }
+            try? await Task.sleep(for: Self.autorunDelay)
+            let headers = await requestHeaders()
+            self.headers = headers
+            print("COINFLOW_FRAUD_RESULT", Self.json(headers))
         }
     }
 
-    private func run() async {
+    private func requestHeaders() async -> [String: String] {
+        let fraudHeaders = await CoinflowFraud.shared.purchaseHeaders()
+        return ["Content-Type": "application/json"].merging(fraudHeaders) { _, fraud in fraud }
+    }
+
+    private func buildHeaders() async {
+        busy = true
+        defer { busy = false }
+        headers = await requestHeaders()
+        response = nil
+    }
+
+    private func send(to url: URL) async {
         busy = true
         defer { busy = false }
 
-        await CoinflowFraud.shared.initialize(merchantId: merchantId, env: env, force: true)
-        header = await CoinflowFraud.shared.purchaseHeaders()[ProtectionHeader.name]
-        payload = DecodedHeader(header)
-        ran = true
-    }
+        let headers = await requestHeaders()
+        self.headers = headers
 
-    @ViewBuilder
-    private func row(_ label: String, _ value: String?) -> some View {
-        HStack(alignment: .top, spacing: 8) {
-            Text(label).font(.caption2).foregroundColor(.secondary).frame(width: 100, alignment: .leading)
-            Text(value ?? "null")
-                .font(.system(.caption2, design: .monospaced))
-                .foregroundColor(value == nil ? .secondary : .primary)
-                .textSelection(.enabled)
-                .frame(maxWidth: .infinity, alignment: .leading)
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.httpBody = Data("{}".utf8)
+        headers.forEach { request.setValue($1, forHTTPHeaderField: $0) }
+
+        do {
+            let (data, urlResponse) = try await URLSession.shared.data(for: request)
+            let status = (urlResponse as? HTTPURLResponse)?.statusCode ?? 0
+            response = "\(status)\n\(String(decoding: data, as: UTF8.self))"
+        } catch {
+            response = error.localizedDescription
         }
     }
 
     @ViewBuilder
-    private func pill(_ label: String, _ on: Bool) -> some View {
-        Text("\(on ? "●" : "○") \(label)")
-            .font(.caption2)
-            .padding(.horizontal, 10).padding(.vertical, 6)
-            .background(on ? Color.green.opacity(0.15) : Color.gray.opacity(0.15))
-            .foregroundColor(on ? .green : .gray)
-            .clipShape(Capsule())
-    }
-}
-
-// The SDK keeps decoding internal (merchants never need it), so the demo reads the header itself.
-private struct DecodedHeader: CustomStringConvertible {
-    let deviceId: String?
-    let sessionId: String?
-    let purchaseToken: String?
-
-    init?(_ header: String?) {
-        guard var base64 = header?
-            .replacingOccurrences(of: "-", with: "+")
-            .replacingOccurrences(of: "_", with: "/")
-        else { return nil }
-        while base64.count % 4 != 0 { base64 += "=" }
-        guard let data = Data(base64Encoded: base64),
-              let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any]
-        else { return nil }
-        deviceId = json["deviceId"] as? String
-        sessionId = json["sessionId"] as? String
-        purchaseToken = json["purchaseToken"] as? String
+    private func section(_ title: String, _ value: String) -> some View {
+        Text(title.uppercased()).font(.caption).bold().foregroundColor(.secondary).padding(.top, 8)
+        Text(value)
+            .font(.system(.footnote, design: .monospaced))
+            .textSelection(.enabled)
+            .padding(10)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(Color(.secondarySystemBackground))
+            .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 
-    var description: String {
-        "deviceId=\(deviceId ?? "null") sessionId=\(sessionId ?? "null") purchaseToken=\(purchaseToken ?? "null")"
+    private static func json(_ headers: [String: String]) -> String {
+        guard let data = try? JSONSerialization.data(
+            withJSONObject: headers,
+            options: [.prettyPrinted, .sortedKeys, .withoutEscapingSlashes]
+        ) else { return "{}" }
+        return String(decoding: data, as: UTF8.self)
     }
 }
