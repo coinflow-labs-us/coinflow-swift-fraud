@@ -1,15 +1,15 @@
 PODS:
-  - CoinflowFraud (0.2.0):
-    - CoinflowFraud/Device (= 0.2.0)
-    - CoinflowFraud/Purchase (= 0.2.0)
-    - CoinflowFraud/Session (= 0.2.0)
-  - CoinflowFraud/Core (0.2.0)
-  - CoinflowFraud/Device (0.2.0):
+  - CoinflowFraud (0.2.1):
+    - CoinflowFraud/Device (= 0.2.1)
+    - CoinflowFraud/Purchase (= 0.2.1)
+    - CoinflowFraud/Session (= 0.2.1)
+  - CoinflowFraud/Core (0.2.1)
+  - CoinflowFraud/Device (0.2.1):
     - CoinflowFraud/Core
-    - nSure (~> 1.4.1)
-  - CoinflowFraud/Purchase (0.2.0):
+    - nSure (< 1.5, >= 1.3.17)
+  - CoinflowFraud/Purchase (0.2.1):
     - CoinflowFraud/Core
-  - CoinflowFraud/Session (0.2.0):
+  - CoinflowFraud/Session (0.2.1):
     - CoinflowFraud/Core
     - VerisoulSDK (~> 0.4.71)
   - Fingerprint-iOS (4.0.0)
@@ -31,7 +31,7 @@ EXTERNAL SOURCES:
     :path: ".."
 
 SPEC CHECKSUMS:
-  CoinflowFraud: 1bf4c0d6bb3942b056dfe4dd0be75a6cb3fe1054
+  CoinflowFraud: 610729739c6eb7ae5dc7d806af3ef7bf593554b8
   Fingerprint-iOS: c732b9dede1ff37a256fbc7efd3f22b7d258f023
   nSure: a9ac40c3932d5683d7a75dd0a08065ecb7a6e1e3
   VerisoulSDK: 61bcfbb870e9fe8600e14a124365a023abc41def

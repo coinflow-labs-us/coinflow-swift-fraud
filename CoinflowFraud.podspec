@@ -26,7 +26,7 @@ Pod::Spec.new do |s|
 
   s.subspec 'Device' do |device|
     device.dependency 'CoinflowFraud/Core'
-    device.dependency 'nSure', '~> 1.4.1'
+    device.dependency 'nSure', '>= 1.3.17', '< 1.5'
   end
 
   # Bundled (Vendor/, version 3.2.3) with the vendor's approval, since it isn't on CocoaPods trunk.

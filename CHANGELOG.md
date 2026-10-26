@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.1
+
+- The device signal SDK accepts versions 1.3.17 through 1.4.x instead of 1.4.1 through 1.4.x, so an
+  app that already ships a conflicting fingerprinting framework can pin an older compatible version in
+  its Podfile. Apps that don't pin it still resolve the latest version.
+
 ## 0.2.0
 
 - The purchase signal SDK is bundled in the `CoinflowFraud` pod, so apps add only `pod 'CoinflowFraud'`.

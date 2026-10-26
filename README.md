@@ -11,7 +11,7 @@ platform :ios, '15.0'
 target 'YourApp' do
   use_frameworks!
 
-  pod 'CoinflowFraud', :git => 'https://github.com/coinflow-labs-us/coinflow-swift-fraud.git', :tag => 'v0.2.0'
+  pod 'CoinflowFraud', :git => 'https://github.com/coinflow-labs-us/coinflow-swift-fraud.git', :tag => 'v0.2.1'
 end
 ```
 
